@@ -1,13 +1,38 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+
+import api.schemas.done as done_schema
+import api.cruds.done as done_crud
+from api.db import get_db
 
 router = APIRouter()
 
 
-@router.get("/tasks/{task_id}/done")
-async def mark_task_as_done(task_id: int):
-    pass
+@router.put(
+    "/tasks/{task_id}/done",
+    response_model=done_schema.DoneResponse
+)
+async def mark_task_as_done(
+    task_id: int,
+    db: Session = Depends(get_db)
+):
+    done = done_crud.get_done(db, task_id)
+    if done:
+        raise HTTPException(status_code=400, detail="Task is already done")
+    
+    return done_crud.create_done(db, task_id)
 
 
-@router.delete("/tasks/{task_id}/done")
-async def unmark_task_as_done(task_id: int):
-    pass
+@router.delete(
+    "/tasks/{task_id}/done",
+    response_model=None
+)
+async def unmark_task_as_done(
+    task_id: int,
+    db: Session = Depends(get_db)
+):
+    done = done_crud.get_done(db, task_id)
+    if not done:
+        raise HTTPException(status_code=400, detail="Task is not done")
+    
+    return done_crud.delete_done(db, done)
