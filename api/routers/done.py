@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 import api.schemas.done as done_schema
 import api.cruds.done as done_crud
@@ -14,13 +15,16 @@ router = APIRouter()
 )
 async def mark_task_as_done(
     task_id: int,
-    db: Session = Depends(get_db)
+    # db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
-    done = done_crud.get_done(db, task_id)
+    # done = done_crud.get_done(db, task_id)
+    done = await done_crud.get_done(db, task_id)
     if done:
         raise HTTPException(status_code=400, detail="Task is already done")
     
-    return done_crud.create_done(db, task_id)
+    # return done_crud.create_done(db, task_id)
+    return await done_crud.create_done(db, task_id)
 
 
 @router.delete(
@@ -29,10 +33,13 @@ async def mark_task_as_done(
 )
 async def unmark_task_as_done(
     task_id: int,
-    db: Session = Depends(get_db)
+    # db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
-    done = done_crud.get_done(db, task_id)
+    # done = done_crud.get_done(db, task_id)
+    done = await done_crud.get_done(db, task_id)
     if not done:
         raise HTTPException(status_code=400, detail="Task is not done")
     
-    return done_crud.delete_done(db, done)
+    # return done_crud.delete_done(db, done)
+    return await done_crud.delete_done(db, done)

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session  
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from ..schemas import task as task_schema
 
@@ -14,9 +15,10 @@ router = APIRouter()
     response_model=List[task_schema.Task]
 )
 async def list_tasks(
-    db: Session = Depends(get_db)
+    # db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    return task_crud.get_tasks_with_done(db)
+    return await task_crud.get_tasks_with_done(db)
 
 
 @router.post(
@@ -24,12 +26,18 @@ async def list_tasks(
     # Check: askCreateResponse를 orm모델과 연동하기 위해 어떻게 처리했는지
     response_model=task_schema.TaskCreateResponse 
 ) 
+# async def create_task(
+#     task_body: task_schema.TaskCreate,
+#     # Check: Depends를 사용하여 get_db 함수를 호출하는 이유는 무엇인가?
+#     db: Session = Depends(get_db)
+# ):
+#     return task_crud.create_task(db, task_body)
 async def create_task(
     task_body: task_schema.TaskCreate,
     # Check: Depends를 사용하여 get_db 함수를 호출하는 이유는 무엇인가?
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_db)
 ):
-    return task_crud.create_task(db, task_body)
+    return await task_crud.create_task(db, task_body)
 
 
 @router.put(
@@ -39,13 +47,16 @@ async def create_task(
 async def update_task(
     task_id: int, 
     task_body: task_schema.TaskCreate,
-    db: Session = Depends(get_db),
+    # db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    task = task_crud.get_task(db, task_id)
+    # task = task_crud.get_task(db, task_id)
+    task = await task_crud.get_task(db, task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    return task_crud.update_task(db, task_body, task)
+    # return task_crud.update_task(db, task_body, task)
+    return await task_crud.update_task(db, task_body, task)
 
 
 @router.delete(
@@ -54,10 +65,13 @@ async def update_task(
 )
 async def delete_task(
     task_id: int,
-    db: Session = Depends(get_db),
+    # db: Session = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    task = task_crud.get_task(db, task_id)
+    # task = task_crud.get_task(db, task_id)
+    task = await task_crud.get_task(db, task_id)
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    return task_crud.delete_task(db, task)
+    # return task_crud.delete_task(db, task)
+    return await task_crud.delete_task(db, task)
