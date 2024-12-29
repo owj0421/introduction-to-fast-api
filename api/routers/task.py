@@ -19,8 +19,8 @@ async def list_tasks():
 
 @router.post(
     "/tasks", 
-    response_model=task_schema.TaskCreateResponse
-) # TaskCreateResponse를 orm모델과 연동하기 위해 어떻게 처리했는지 가서 볼 것.
+    response_model=task_schema.TaskCreateResponse # TaskCreateResponse를 orm모델과 연동하기 위해 어떻게 처리했는지 가서 볼 것.
+) 
 async def create_task(
     task_body: task_schema.TaskCreate,
     db: Session = Depends(get_db)
@@ -32,12 +32,17 @@ async def create_task(
     "/tasks/{task_id}", 
     response_model=task_schema.TaskCreateResponse
 )
-async def update_task(task_id: int, task_body: task_schema.TaskCreate):
+async def update_task(
+    task_id: int, 
+    task_body: task_schema.TaskCreate
+):
     return task_schema.TaskCreateResponse(id=1, **task_body.model_dump())
 
 
 @router.delete(
     "/tasks/{task_id}"
 )
-async def delete_task(task_id: int):
+async def delete_task(
+    task_id: int
+):
     return {"task": f"Task {task_id} has been deleted"}
