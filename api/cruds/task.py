@@ -38,6 +38,7 @@ async def get_tasks_with_done(
         select(
             task_model.Task.id,
             task_model.Task.title,
+            task_model.Task.due_date,
             # Check: ToDO 작업이 존재 했을 때만, Done이 존재
             #        Done.id가 존재하면 True
             task_model.Done.id.isnot(None).label("done"),
@@ -71,6 +72,7 @@ async def update_task(
     original: task_model.Task,
 ) -> task_model.Task:
     original.title = task_create.title
+    original.due_date = task_create.due_date
     
     db.add(original)
     # db.commit()

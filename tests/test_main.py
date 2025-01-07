@@ -90,3 +90,37 @@ async def test_done_flag(async_client):
     # 이미 완료되지 않은 작업에 대해 완료 플래그 해제 시도
     response = await async_client.delete(f"/tasks/{response_obj['id']}/done")
     assert response.status_code == starlette.status.HTTP_404_NOT_FOUND
+    
+    
+# @pytest.mark.asyncio
+# async def test_due_date(async_client):
+#     input_param_list = [
+#         '2024-12-01',
+#         '2024-12-32',
+#         '2024/12/01',
+#         '2024-1201'
+#     ]
+#     expectation_list = [
+#         starlette.status.HTTP_200_OK,
+#         starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
+#         starlette.status.HTTP_422_UNPROCESSABLE_ENTITY,
+#         starlette.status.HTTP_422_UNPROCESSABLE_ENTITY
+#     ]
+    
+#     for idx, input_param in enumerate(input_param_list):
+#         response = await async_client.post("/tasks", json={"title": "테스트작업3", "due_date": input_param})
+#         assert response.status_code == expectation_list[idx]
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "input_param, expectation",
+    [
+        ('2024-12-01', starlette.status.HTTP_200_OK),
+        ('2024-12-32', starlette.status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ('2024/12/01', starlette.status.HTTP_422_UNPROCESSABLE_ENTITY),
+        ('2024-1201', starlette.status.HTTP_422_UNPROCESSABLE_ENTITY),
+    ]
+)
+async def test_due_date(input_param, expectation, async_client):
+    response = await async_client.post("/tasks", json={"title": "테스트작업3", "due_date": input_param})
+    assert response.status_code == expectation
