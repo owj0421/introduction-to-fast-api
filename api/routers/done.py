@@ -39,7 +39,7 @@ async def unmark_task_as_done(
     # done = done_crud.get_done(db, task_id)
     done = await done_crud.get_done(db, task_id)
     if not done:
-        raise HTTPException(status_code=400, detail="Task is not done")
+        raise HTTPException(status_code=404, detail="Task is not done")
     
     # return done_crud.delete_done(db, done)
     return await done_crud.delete_done(db, done)
